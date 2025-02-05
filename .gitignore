@@ -1,0 +1,8 @@
+# Visual Studio #
+*.vs/
+*.vsconfig
+
+# Unreal Engine #
+*Binaries/
+*Intermediate/
+*Saved/
