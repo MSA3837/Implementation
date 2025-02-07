@@ -34,6 +34,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 	class UCameraComponent* Camera;
 
+	// Flashlight
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Flashlight")
+	class USpotLightComponent* Light;
+
 	// Enhanced Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputMappingContext* MappingContext;
@@ -45,13 +49,16 @@ protected:
 	class UInputAction* LookIAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	class UInputAction* FlashlightIAction;
-
-	UPROPERTY(EditAnywhere, Category = "Flashlight")
-	class USpotLightComponent* FlashSpotLight;
+	class UInputAction* LightIAction;
 
 	// Movement
 	void Move(const struct FInputActionValue& Value);
 	void Look(const struct FInputActionValue& Value);
-	void Flashlight(const struct FInputActionValue& Value);
+
+private:
+	bool LightState{ false };
+
+	void FlashLight(const struct FInputActionValue& Value);
+	void ToggleFlashLight();
+
 };

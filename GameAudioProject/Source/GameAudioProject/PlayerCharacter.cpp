@@ -2,10 +2,13 @@
 
 
 #include "PlayerCharacter.h"
+
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+
 #include "Components/SpotLightComponent.h"
 
 // Sets default values
@@ -22,8 +25,10 @@ APlayerCharacter::APlayerCharacter()
 
 	Camera->bUsePawnControlRotation = true;
 
-	FlashSpotLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
-	FlashSpotLight->SetupAttachment(Camera);
+	Light = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
+	Light->SetupAttachment(Camera);
+
+	Light->SetVisibility(false, false); // Visibility set to false by default
 
 }
 
@@ -32,6 +37,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -60,7 +66,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		Input->BindAction(MoveIAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 		Input->BindAction(LookIAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 
-		Input->BindAction(FlashlightIAction, ETriggerEvent::Triggered, this, &ThisClass::Flashlight);
+		Input->BindAction(LightIAction, ETriggerEvent::Started, this, &ThisClass::ToggleFlashLight);
 	}
 
 }
@@ -89,17 +95,30 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 	if (IsValid(Controller))
 	{
-		// Yaw and Pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 
 }
 
-void APlayerCharacter::Flashlight(const FInputActionValue& Value)
+void APlayerCharacter::FlashLight(const FInputActionValue& Value)
 {
-	if (IsValid(Controller))
+	LightState = Value.Get<bool>(); // LightState is equals the value of the controller input
+
+	ToggleFlashLight();
+}
+
+void APlayerCharacter::ToggleFlashLight()
+{
+	if (LightState)
 	{
-		
+		LightState = false;
+		Light->SetVisibility(false, false);
 	}
+	else
+	{
+		LightState = true;
+		Light->SetVisibility(true, true);
+	}
+
 }
